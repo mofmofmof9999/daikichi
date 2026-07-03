@@ -121,7 +121,7 @@
     </div>
     <div class="keynote">
       ※キーを入れるとこのページでもAI会話ができる。<br>
-      ・Gemini(AIza…): Google AI Studioで無料枠のキーが作れる<br>
+      ・Gemini(AIza… や AQ.… で始まる): Google AI Studioで無料枠のキーが作れる<br>
       ・Claude(sk-ant-…): Anthropic APIキー(従量課金)<br>
       キーはこの端末のブラウザにだけ保存される。空のままでも圏外モードでおしゃべりするよ。
     </div>
@@ -318,8 +318,8 @@ async function talk(){
 飼い主の言葉:「${text}」
 だいきちとして、日本語で1〜2文の短くおだやかな言葉だけを返す。「…」をときどき使う。絵文字・説明・前置きは書かない。`;
 
-  if (apiKey.startsWith("AIza")) {
-    // ---- Gemini (無料枠あり) ----
+  if (apiKey && !apiKey.startsWith("sk-ant")) {
+    // ---- Gemini (無料枠あり / AIza… や AQ.… 形式のキー) ----
     const contents = [
       ...history.map(m => ({ role: m.role==="assistant" ? "model" : "user", parts:[{text:m.content}] })),
       { role:"user", parts:[{text:promptText}] },
@@ -364,7 +364,7 @@ async function talk(){
       }
     } catch(e){ err = String(e&&e.message?e.message:e).slice(0,140); }
   }
-  if (reply) { setSrc(apiKey.startsWith("AIza") ? "Gemini" : "Claude"); el.talkErr.style.display="none"; }
+  if (reply) { setSrc(apiKey.startsWith("sk-ant") ? "Claude" : "Gemini"); el.talkErr.style.display="none"; }
   else {
     reply = localReply(text); setSrc("local");
     if (err){ el.talkErr.textContent = "つうしんエラー: "+err; el.talkErr.style.display="block"; }
