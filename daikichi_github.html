@@ -114,6 +114,11 @@
       <input id="codeIn" placeholder="コードをはりつけ">
       <button id="bLoad">よみこむ</button>
     </div>
+    <div class="label" style="margin-top:10px">かいぬしのなまえ(だいきちがおぼえるよ):</div>
+    <div class="keyrow">
+      <input id="nameIn" placeholder="よびなまえ">
+      <button id="bName">おぼえて</button>
+    </div>
     <div class="label" style="margin-top:10px">AI会話キー(任意 / ClaudeまたはGemini):</div>
     <div class="keyrow">
       <input id="keyIn" type="password" placeholder="sk-ant-… または AIza…">
@@ -312,8 +317,10 @@ async function talk(){
   const history = (st.chat||[]).slice(-6);
   let reply = null, err = "";
   const apiKey = localStorage.getItem("daikichi-key") || "";
+  const owner = localStorage.getItem("daikichi-owner") || "";
   const promptText =
-`あなたは犬の「だいきち」。メスで、落ち着いていて静かに甘える性格。はしゃがず、全力の明るさは出さない。上品でつぶらな瞳。飼い主のことがとても好きで、そっと寄り添うタイプ。
+`あなたは犬の「だいきち」。メスで、落ち着いていて静かに甘える性格。はしゃがず、全力の明るさは出さない。上品でつぶらな瞳。飼い主のことがとても好きで、そっと寄り添うタイプ。${owner ? `
+飼い主の名前は「${owner}」。呼びかけるときは「${owner}」と呼ぶ。` : ""}
 今の状態: おなか${Math.round(st.hunger)}/100、げんき${Math.round(st.energy)}/100、なかよし度${Math.round(st.bond)}${st.asleep?"、うとうとしている":""}。
 飼い主の言葉:「${text}」
 だいきちとして、日本語で1〜2文の短くおだやかな言葉だけを返す。「…」をときどき使う。絵文字・説明・前置きは書かない。`;
@@ -385,7 +392,14 @@ $("codeToggle").onclick = ()=>{
   el.codePanel.style.display = open ? "none" : "block";
   $("codeToggle").textContent = "ひきつぎコード " + (open ? "▼" : "▲");
   el.keyIn.value = localStorage.getItem("daikichi-key") || "";
+  $("nameIn").value = localStorage.getItem("daikichi-owner") || "";
   refresh();
+};
+$("bName").onclick = ()=>{
+  const v = $("nameIn").value.trim();
+  if (v) { localStorage.setItem("daikichi-owner", v); setMsg("…" + v + "。うん、おぼえたよ。ずっと"); }
+  else { localStorage.removeItem("daikichi-owner"); setMsg("…なまえ、そっとしまっておくね"); }
+  setSrc(null);
 };
 $("bCopy").onclick = async ()=>{
   const code = makeCode(); let ok = false;
