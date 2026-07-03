@@ -30,7 +30,7 @@
   .stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 6px 0; }
   #sprite { width: 74%; max-width: 260px; shape-rendering: crispEdges; transition: transform .65s ease-in-out; }
   #zzz { position: absolute; top: 52px; right: 46px; font-size: 16px; color: #6B7B8C; display: none; }
-  #bowl { position: absolute; bottom: 108px; font-size: 18px; display: none; }
+  #bowl { position: absolute; top: 44%; left: 9%; font-size: 36px; display: none; }
   .bubble {
     align-self: stretch; background: rgba(255,255,255,.6); border: 2px solid #B9B29A; border-radius: 8px;
     padding: 8px 10px; font-size: 13px; color: #3A3226; min-height: 44px; line-height: 1.5; position: relative;
@@ -244,7 +244,7 @@ function setMsg(t){ el.msg.textContent = t; }
 function setSrc(kind){
   if(!kind){ el.src.style.display="none"; return; }
   el.src.style.display="inline";
-  el.src.textContent = kind==="local" ? "圏外" : "📶 " + kind;
+  el.src.textContent = kind==="local" ? "圏外" : "📶";
   el.src.style.color = kind==="local" ? "#A08A6A" : "#4E8A4E";
 }
 function doFor(m, ms){
