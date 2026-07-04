@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ポケットだいきち '98</title>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh; background: #1E3A52;
+    display: flex; justify-content: center; padding: 18px 10px;
+    font-family: 'DotGothic16', monospace;
+  }
+  .shell {
+    width: 100%; max-width: 400px;
+    background: linear-gradient(180deg,#4A7BA6,#37618A);
+    border-radius: 30px; padding: 16px; height: fit-content;
+    box-shadow: 0 10px 30px rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.25);
+  }
+  .brand { text-align: center; color: #DCEAF5; font-size: 13px; letter-spacing: 3px; margin-bottom: 10px; }
+  .lcd {
+    position: relative; background: #F1EEDC; border: 6px solid #21415C; border-radius: 14px;
+    padding: 14px 12px 26px; min-height: 330px;
+    display: flex; flex-direction: column; align-items: center;
+    box-shadow: inset 0 0 18px rgba(60,80,60,.25);
+  }
+  .toprow { align-self: stretch; display: flex; justify-content: space-between; font-size: 12px; color: #4A4232; }
+  #hearts { color: #C75B5B; }
+  .stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 6px 0; }
+  #sprite { width: 74%; max-width: 260px; shape-rendering: crispEdges; transition: transform .65s ease-in-out; }
+  #zzz { position: absolute; top: 52px; right: 46px; font-size: 16px; color: #6B7B8C; display: none; }
+  #bowl { position: absolute; top: 44%; left: 9%; font-size: 36px; display: none; }
+  .bubble {
+    align-self: stretch; background: rgba(255,255,255,.6); border: 2px solid #B9B29A; border-radius: 8px;
+    padding: 8px 10px; font-size: 13px; color: #3A3226; min-height: 44px; line-height: 1.5; position: relative;
+  }
+  #src { position: absolute; top: 2px; right: 6px; font-size: 9px; display: none; }
+  .stats { align-self: stretch; margin-top: 8px; color: #4A4232; font-size: 12px; }
+  .bar { display: flex; align-items: center; gap: 8px; }
+  .bar span:first-child { width: 52px; }
+  .blocks { letter-spacing: 1px; }
+  #saveState { font-size: 10px; margin-top: 4px; color: #8A8368; }
+  #stamp { position: absolute; bottom: 8px; right: 12px; color: #FF8A2A; font-size: 15px; text-shadow: 0 0 6px rgba(255,138,42,.8); }
+  .btns { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-top: 14px; }
+  button {
+    font-family: 'DotGothic16', monospace; font-size: 13px; padding: 10px 0;
+    border-radius: 12px; border: 3px solid #21415C; background: #EAF2F8; color: #21415C;
+    box-shadow: 0 3px 0 #21415C; cursor: pointer; width: 100%;
+  }
+  button:active { transform: translateY(2px); box-shadow: 0 1px 0 #21415C; }
+  .talkbtn { background: #FFE9CE; margin-top: 10px; }
+  .talkrow { display: none; gap: 8px; margin-top: 10px; }
+  .talkrow input {
+    flex: 1; font-family: 'DotGothic16', monospace; font-size: 14px; padding: 10px 12px;
+    border-radius: 12px; border: 3px solid #21415C; outline: none; background: #F7FAFC; min-width: 0;
+  }
+  .talkrow button { width: 84px; background: #FFE9CE; }
+  #talkErr { font-size: 9px; color: #FFC2B3; margin-top: 4px; word-break: break-all; display: none; }
+  .codeToggle { text-align: center; color: #A9C4DB; font-size: 11px; cursor: pointer; text-decoration: underline; margin-top: 8px; }
+  #codePanel { display: none; margin-top: 6px; background: #2C5578; border-radius: 12px; padding: 10px; }
+  #codePanel .label { color: #DCEAF5; font-size: 10px; margin-bottom: 4px; }
+  .coderow { display: flex; gap: 6px; align-items: stretch; }
+  #codeOut {
+    flex: 1; background: #F7FAFC; border-radius: 8px; padding: 6px 8px; font-size: 11px;
+    word-break: break-all; user-select: all; color: #21415C; font-family: monospace;
+  }
+  .coderow button, .keyrow button { width: 72px; font-size: 12px; padding: 8px 0; }
+  .keyrow, .coderow.in { display: flex; gap: 6px; margin-top: 8px; }
+  #codeIn, #keyIn {
+    flex: 1; font-family: monospace; font-size: 11px; padding: 8px 10px;
+    border-radius: 10px; border: 2px solid #21415C; outline: none; background: #F7FAFC; min-width: 0;
+  }
+  .keynote { color: #A9C4DB; font-size: 9px; margin-top: 4px; line-height: 1.5; }
+  .foot { text-align: center; color: #A9C4DB; font-size: 11px; margin-top: 12px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="brand">▲ POCKET DAIKICHI '98 ▲</div>
+  <div class="lcd">
+    <div class="toprow"><span id="title">…</span><span id="hearts"></span></div>
+    <div class="stage"><svg id="sprite" viewBox="0 0 38 32"></svg></div>
+    <div id="zzz">z Z</div>
+    <div id="bowl">🍚</div>
+    <div class="bubble"><span id="src"></span><span id="msg">…</span></div>
+    <div class="stats">
+      <div class="bar"><span>おなか</span><span class="blocks" id="barH" style="color:#C7793B"></span></div>
+      <div class="bar"><span>げんき</span><span class="blocks" id="barE" style="color:#5B8A5B"></span></div>
+      <div id="saveState"></div>
+    </div>
+    <div id="stamp"></div>
+  </div>
+  <div class="btns">
+    <button id="bFeed">ごはん</button>
+    <button id="bPet">なでる</button>
+    <button id="bWalk">さんぽ</button>
+    <button id="bSleep">おやすみ</button>
+  </div>
+  <button class="talkbtn" id="bTalkOpen">だいきちと はなす</button>
+  <div class="talkrow" id="talkRow">
+    <input id="talkIn" placeholder="はなしかける…">
+    <button id="bTalk">つたえる</button>
+  </div>
+  <div id="talkErr"></div>
+  <div class="codeToggle" id="zukanToggle">おもいで図鑑 ▼</div>
+  <div id="zukanPanel" style="display:none;margin-top:6px;background:#2C5578;border-radius:12px;padding:10px;">
+    <div class="label" id="zukanHead"></div>
+    <div id="zukanGrid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+  </div>
+  <div class="codeToggle" id="codeToggle">ひきつぎコード ▼</div>
+  <div id="codePanel">
+    <div class="label">いまのコード:</div>
+    <div class="coderow">
+      <div id="codeOut"></div>
+      <button id="bCopy">コピー</button>
+    </div>
+    <div class="coderow in">
+      <input id="codeIn" placeholder="コードをはりつけ">
+      <button id="bLoad">よみこむ</button>
+    </div>
+    <div class="label" style="margin-top:10px">かいぬしのなまえ(だいきちがおぼえるよ):</div>
+    <div class="keyrow">
+      <input id="nameIn" placeholder="よびなまえ">
+      <button id="bName">おぼえて</button>
+    </div>
+    <div class="label" style="margin-top:10px">AI会話キー(任意 / ClaudeまたはGemini):</div>
+    <div class="keyrow">
+      <input id="keyIn" type="password" placeholder="sk-ant-… または AIza…">
+      <button id="bKey">ほぞん</button>
+    </div>
+    <div class="keynote">
+      ※キーを入れるとこのページでもAI会話ができる。<br>
+      ・Gemini(AIza… や AQ.… で始まる): Google AI Studioで無料枠のキーが作れる<br>
+      ・Claude(sk-ant-…): Anthropic APIキー(従量課金)<br>
+      キーはこの端末のブラウザにだけ保存される。空のままでも圏外モードでおしゃべりするよ。
+    </div>
+  </div>
+  <div class="foot">そだてた記録はこのブラウザに自動でのこるよ。<br>あしたも、だいきちが待ってる。</div>
+</div>
+
+<script>
+"use strict";
+// ============ パレット & ドット絵 (36x32) ============
+const PAL = { o:"#4A3524", t:"#D89B57", T:"#B5763A", c:"#F4E6C8", C:"#FCF5E4", k:"#2B211A", w:"#FFFFFF", p:"#DDA095", K:"#6E6052" };
+const ART = [
+"........oo..........................",
+".......otto.........................",
+".......otpto........................",
+"......ottppto.......................",
+"......otpppto.......................",
+".....ottpppto.......oooooo..........",
+".....otttttttoooooootTTTTTTo........",
+".....ottttttttttttttttTTTTTTTo......",
+"....otttttttttttttttttttTTTTTTo.....",
+"....otttttttttttttttttttttTTTTo.....",
+"...ottttttttttttttttttttttTTTo......",
+"...ottttttttttttttttttttttooo.......",
+"..otttttttttttttttttttttttto........",
+"..ottttttkwttttttttkwtttttto........",
+"..ottttttkkttttttttkktttttto........",
+"..occccttttttttttttttttcccco........",
+"..occccccccttkkkttcccccccco.........",
+"..occccccccctkktccccccccco..........",
+"...occccccccccktccccccccco..........",
+".....occcccccccccccccccco...........",
+".....otKkKkKkKkKkKkKkKkto..ooo......",
+".....ottcCCCCCCCCCCCCctto..ottto....",
+".....ottcCCCCCCCCCCCCctto.otcctto...",
+"....otttcCCCCCCCCCCCCcttootcctto....",
+"...ottttcCCCCCCCCCCCCcttttottoo.....",
+"..otttttcCCCCCCCCCCCCcttttto........",
+"..otttcCCCCCCCCCCCCCcttttoo.........",
+"..ottcCCCoCCCCCCCCoCCCcttttoo.......",
+"..ottcCCCoCCCCCCCCoCCCcttoo.........",
+"..ottcCCoo.oooooo.ooCCccttoo........",
+"..oowwoo............owwoo...........",
+"...oooo.............oooo............",
+];
+
+// おすわりポーズ(下半身 行25-31 差し替え用)
+const SIT = [
+"..ottttttcCCCCCCCCCCcttttttoo.......",
+".otttttttcCCCCCCCCCCcttttttto.......",
+".ottttttttcCCCooCCCcttttttttto......",
+".ottttttttcCCCooCCCcttttttttto......",
+".owwtttttttcCCooCCctttttttwwo.......",
+"..oo.......owwoowwo.......oo........",
+"...........oooooooo.................",
+];
+
+function buildGrid(mode, blink, shift) {
+  const g = ART.map(r => r.split(""));
+  const closeEyes = () => { g[13][9]="t"; g[13][10]="t"; g[13][19]="t"; g[13][20]="t"; };
+  if (mode==="sleep") { for (let y=0;y<=2;y++) g[y]=g[y].map(()=>"."); closeEyes(); }
+  else if (mode==="droop") { for (let y=0;y<=1;y++) g[y]=g[y].map(()=>"."); g[13][9]="T";g[13][10]="T";g[13][19]="T";g[13][20]="T"; }
+  else if (mode==="ote") {
+    closeEyes();
+    for (let x=2;x<10;x++) g[30][x]=".";
+    for (let x=3;x<7;x++) g[31][x]=".";
+    for (let x=2;x<10;x++) g[29][x] = x<=7 ? "o" : ".";
+    const s = shift ? 1 : 0;
+    [[21+s,3,"o"],[21+s,4,"o"],[22+s,2,"o"],[22+s,3,"w"],[22+s,4,"c"],[22+s,5,"o"],
+     [23+s,2,"o"],[23+s,3,"w"],[23+s,4,"c"],[23+s,5,"o"],
+     [24+s,3,"o"],[24+s,4,"c"],[24+s,5,"c"]].forEach(([y,x,ch])=>{ g[y][x]=ch; });
+  }
+  else if (mode==="osuwari") {
+    SIT.forEach((row,i)=>{ g[25+i]=row.split(""); });
+    if (blink) closeEyes();
+  }
+  else if (mode==="okawari") {
+    closeEyes();
+    for (let x=18;x<28;x++) g[29][x] = (x>=20&&x<=25) ? "o" : ".";
+    for (let x=19;x<26;x++) g[30][x]=".";
+    for (let x=20;x<26;x++) g[31][x]=".";
+    const s = shift ? 1 : 0;
+    [[21+s,24,"o"],[21+s,25,"o"],[22+s,23,"o"],[22+s,24,"c"],[22+s,25,"w"],[22+s,26,"o"],
+     [23+s,23,"o"],[23+s,24,"c"],[23+s,25,"w"],[23+s,26,"o"],
+     [24+s,22,"c"],[24+s,23,"c"],[24+s,24,"o"]].forEach(([y,x,ch])=>{ g[y][x]=ch; });
+  }
+  else if (mode==="happy"||mode==="eat") { closeEyes(); g[19][14]="p"; g[19][15]="p"; }
+  else if (blink) closeEyes();
+  return g;
+}
+
+// ============ セリフ ============
+const LINES = {
+  feed:["…ゆっくり、たいらげた。しっぽが小さくゆれている","静かに食べて、あなたをちらっと見た","「…おいしい」と言いたげに、目を細めた"],
+  pet:["目を細めて、そっと体をあずけてきた","手のひらに、静かに頭をのせてきた","しっぽが、ゆっくり…ぱたん、とゆれた"],
+  walk:["となりを静かに歩いてる。ときどき見上げてくる","風のにおいをかいで、少しだけ足取りが軽い","帰り道、少しだけあなたに寄って歩いた"],
+  sleep:["まるくなって、静かな寝息…"], wake:["ゆっくり伸びをして、あなたを見上げた"],
+  hungry:["…おなかがすいたみたい。じっとこちらを見ている"], tired:["少しつかれてるみたい。今日はゆっくりしよう"],
+  ote:["「…はい」と、そっと前足を手にのせてきた","静かに、お手。肉球があたたかい","少し考えてから、ちょこんと前足をのせた"],
+  idle:["静かにおすわりして、あなたのそばにいる","つぶらな瞳で、じっとこちらを見ている","垂れた左耳が、ぴくりと動いた"],
+};
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function localReply(text){
+  const has=(...ws)=>ws.some(w=>text.includes(w));
+  if(has("かわいい","すき","好き","大好き"))return "…わたしも。しっぽが、ゆっくりゆれた";
+  if(has("さんぽ","散歩"))return "…いきたい。ゆっくりでいいなら";
+  if(has("ごはん","おなか","たべ","食べ"))return "…すこしだけ、たべようかな";
+  if(has("おはよう"))return "…おはよう。今日も、そばにいるよ";
+  if(has("おやすみ","ねる","寝"))return "…おやすみ。いい夢を";
+  if(has("だいきち"))return "…なあに。と、静かにこちらを見た";
+  if(has("げんき","元気"))return "…うん。あなたがいれば";
+  if(has("ありがとう"))return "…ふふ。前足を、そっと近づけてきた";
+  return pick(["「…」と、耳をぴくりとさせて聞いている","そっと前足を、あなたの手に近づけた","「…そう」と言いたげに、目を細めた"]);
+}
+// 声かけコマンド(APIを使わない芸)
+function matchTrick(text){
+  const has=(...ws)=>ws.some(w=>text.includes(w));
+  if(has("おかわり"))return {mode:"okawari",lines:["「…はい」と、はんたいの前足をのせてきた","おかわり。ちょっと得意げな目をしている"]};
+  if(has("おて","お手"))return {mode:"ote",lines:LINES.ote};
+  if(has("おすわり"))return {mode:"osuwari",sticky:true,lines:["すっ、とおすわり。しっぽだけが小さくゆれている","「…ん」きれいにおすわりして、あなたを見上げた"]};
+  if(has("まて","マテ","待て"))return {mode:"mate",ms:4200,lines:["じっ…。うごかずに、目だけであなたを追っている"]};
+  if(has("よし","ヨシ"))return {mode:"happy",lines:["ぱたっ。しっぽが小さくはねて、そばに来た"]};
+  return null;
+}
+// さんぽのおみやげ(おもいで図鑑)
+const ITEMS = [
+ {id:"donguri",e:"🌰",n:"どんぐり",w:6},{id:"ochiba",e:"🍂",n:"おちば",w:6},{id:"eda",e:"🌿",n:"ちいさなえだ",w:6},
+ {id:"hana",e:"🌼",n:"しろいはな",w:6},{id:"ishi",e:"🪨",n:"まるいいし",w:6},{id:"nekojarashi",e:"🌾",n:"ねこじゃらし",w:6},
+ {id:"hane",e:"🪶",n:"とりのはね",w:6},{id:"haru",e:"🌷",n:"はるのはな",w:6},
+ {id:"clover",e:"🍀",n:"よつばのクローバー",w:3},{id:"katatsumuri",e:"🐌",n:"かたつむり",w:3},{id:"glass",e:"🔷",n:"きれいなガラス",w:3},
+ {id:"sakura",e:"🌸",n:"さくらのはなびら",w:3},{id:"kinoko",e:"🍄",n:"きのこ",w:3},{id:"keito",e:"🧶",n:"けいと",w:3},
+ {id:"chou",e:"🦋",n:"ちょうちょ",w:1},{id:"niji",e:"🌈",n:"にじのかけら",w:1},{id:"hoshi",e:"⭐",n:"ほしのすな",w:1},{id:"kaigara",e:"🐚",n:"うみのかいがら",w:1},
+];
+function pickItem(){
+  const total = ITEMS.reduce((s,i)=>s+i.w,0);
+  let r = Math.random()*total;
+  for (const it of ITEMS){ r-=it.w; if(r<0) return it; }
+  return ITEMS[0];
+}
+
+// ============ 状態 ============
+const clamp = v => Math.max(0, Math.min(100, v));
+const KEY = "daikichi-save";
+let st = { hunger:80, energy:80, bond:0, asleep:false, lastSeen:Date.now(), chat:[], items:{}, days:0, lastDay:"" };
+let tick = 0, mode = "idle", modeTimer = null;
+
+function applyElapsed(s){
+  const hours = Math.min(72, (Date.now()-s.lastSeen)/3600000);
+  if (hours > 0.05) {
+    s.hunger = Math.max(10, s.hunger - hours*6);
+    s.energy = s.asleep ? clamp(s.energy + hours*14) : Math.max(15, s.energy - hours*3);
+    if (s.asleep && hours > 8) s.asleep = false;
+  }
+  s.lastSeen = Date.now();
+  return hours;
+}
+function save(){
+  try {
+    localStorage.setItem(KEY, JSON.stringify({...st, lastSeen: Date.now()}));
+    el.saveState.textContent = "きろくOK"; el.saveState.style.color = "#8A8368";
+  } catch(e){
+    el.saveState.textContent = "きろくできない…"; el.saveState.style.color = "#C75B5B";
+  }
+}
+
+// ============ 画面 ============
+const $ = id => document.getElementById(id);
+const el = {
+  sprite:$("sprite"), zzz:$("zzz"), bowl:$("bowl"), msg:$("msg"), src:$("src"),
+  title:$("title"), hearts:$("hearts"), barH:$("barH"), barE:$("barE"),
+  saveState:$("saveState"), stamp:$("stamp"), bSleep:$("bSleep"),
+  talkRow:$("talkRow"), talkIn:$("talkIn"), talkErr:$("talkErr"),
+  codePanel:$("codePanel"), codeOut:$("codeOut"), codeIn:$("codeIn"), keyIn:$("keyIn"),
+};
+function setMsg(t){ el.msg.textContent = t; }
+function setSrc(kind){
+  if(!kind){ el.src.style.display="none"; return; }
+  el.src.style.display="inline";
+  el.src.textContent = kind==="local" ? "圏外" : "📶";
+  el.src.style.color = kind==="local" ? "#A08A6A" : "#4E8A4E";
+}
+function doFor(m, ms){
+  clearTimeout(modeTimer); mode = m;
+  modeTimer = setTimeout(()=>{ mode="idle"; }, ms);
+}
+function drawSprite(){
+  const wag = mode!=="sleep" && mode!=="droop" && mode!=="mate" && tick%2===1;
+  const blink = (mode==="idle"||mode==="osuwari") && tick%9===0;
+  const g = buildGrid(mode, blink, tick % 2);
+  let out = "";
+  for (let y=0;y<g.length;y++) for (let x=0;x<g[y].length;x++){
+    const ch = g[y][x]; if (ch===".") continue;
+    const dx = (wag && y>=20 && y<=23 && x>=26) ? 1 : 0;
+    out += `<rect x="${x+dx}" y="${y}" width="1" height="1" fill="${PAL[ch]}"/>`;
+  }
+  el.sprite.innerHTML = out;
+  el.sprite.style.transform = mode==="walk"
+    ? `translateX(${tick%4<2?-10:10}px)` : mode==="mate" ? "none" : `translateY(${tick%2?1:0}px)`;
+}
+function refresh(){
+  const hearts = Math.min(5, 1+Math.floor(st.bond/60));
+  el.title.textContent = st.bond<30?"であったばかり":st.bond<120?"うちとけてきた":st.bond<300?"なかよし":st.bond<1000?"かぞく":"ずっといっしょ";
+  el.hearts.textContent = "♥".repeat(hearts)+"♡".repeat(5-hearts);
+  el.barH.textContent = "■".repeat(Math.round(st.hunger/100*8)).padEnd(8,"□");
+  el.barE.textContent = "■".repeat(Math.round(st.energy/100*8)).padEnd(8,"□");
+  el.bSleep.textContent = st.asleep ? "おこす" : "おやすみ";
+  el.zzz.style.display = st.asleep ? "block" : "none";
+  el.bowl.style.display = mode==="eat" ? "block" : "none";
+  el.codeOut.textContent = makeCode();
+  const d = new Date();
+  el.stamp.textContent = `'${String(d.getFullYear()).slice(2)} ${d.getMonth()+1} ${d.getDate()}`;
+}
+
+// ============ アクション ============
+$("bFeed").onclick = ()=>{
+  if (st.asleep) return setMsg("いまは夢のなか…");
+  st.hunger = clamp(st.hunger+30); st.bond += 2;
+  save(); setMsg(pick(LINES.feed)); setSrc(null); doFor("eat",2600); refresh();
+};
+$("bPet").onclick = ()=>{
+  st.bond += 3; st.energy = clamp(st.energy+2); save();
+  setMsg(st.asleep ? "眠ったまま、ふぅ…と息をついた" : pick(LINES.pet)); setSrc(null);
+  if (!st.asleep) doFor("happy",2400); refresh();
+};
+$("bWalk").onclick = ()=>{
+  if (st.asleep) return setMsg("いまは夢のなか…");
+  if (st.energy < 20) return setMsg(pick(LINES.tired));
+  st.energy = clamp(st.energy-15); st.hunger = Math.max(5, st.hunger-8); st.bond += 5;
+  if (Math.random() < 0.45) {
+    const it = pickItem();
+    st.items = st.items || {};
+    st.items[it.id] = (st.items[it.id]||0) + 1;
+    const first = st.items[it.id] === 1 ? "(はじめてみつけた)" : "";
+    setMsg(pick([
+      `さんぽの帰り、${it.e}${it.n}をそっとくわえてきた${first}`,
+      `${it.e}${it.n}をみつけて、じっと見ていた${first}`,
+      `あなたのてのひらに、${it.e}${it.n}をのせた${first}`,
+    ]));
+  } else setMsg(pick(LINES.walk));
+  save(); setSrc(null); doFor("walk",4200); refresh(); renderZukan();
+};
+$("bSleep").onclick = ()=>{
+  st.asleep = !st.asleep; save();
+  clearTimeout(modeTimer);
+  if (st.asleep){ mode="sleep"; setMsg(pick(LINES.sleep)); }
+  else { mode="idle"; setMsg(pick(LINES.wake)); }
+  setSrc(null); refresh();
+};
+
+el.sprite.style.cursor = "pointer";
+el.sprite.addEventListener("click", ()=>{
+  if (st.asleep) { setMsg("眠ったまま、前足がぴくっと動いた"); return; }
+  st.bond += 2; save();
+  setMsg(pick(LINES.ote)); setSrc(null); doFor("ote", 2600); refresh();
+});
+
+// ============ おはなし ============
+$("bTalkOpen").onclick = ()=>{ $("bTalkOpen").style.display="none"; el.talkRow.style.display="flex"; el.talkIn.focus(); };
+el.talkIn.addEventListener("keydown", e=>{ if(e.key==="Enter") talk(); });
+$("bTalk").onclick = ()=>talk();
+let thinking = false;
+async function talk(){
+  const text = el.talkIn.value.trim();
+  if (!text || thinking) return;
+  el.talkIn.value = "";
+  // 芸コマンドはAIを呼ばずに即反応
+  const trick = matchTrick(text);
+  if (trick) {
+    st.bond += 2; save();
+    setSrc(null); setMsg(pick(trick.lines));
+    if (trick.sticky) { clearTimeout(modeTimer); mode = trick.mode; }
+    else doFor(trick.mode, trick.ms || 2800);
+    refresh();
+    return;
+  }
+  thinking = true; $("bTalk").textContent = "…";
+  setMsg("…(耳がぴくりと動いた)"); setSrc(null);
+  const history = (st.chat||[]).slice(-6);
+  let reply = null, err = "";
+  const apiKey = localStorage.getItem("daikichi-key") || "";
+  const owner = localStorage.getItem("daikichi-owner") || "";
+  const promptText =
+`あなたは犬の「だいきち」。メスで、落ち着いていて静かに甘える性格。はしゃがず、全力の明るさは出さない。上品でつぶらな瞳。飼い主のことがとても好きで、そっと寄り添うタイプ。${owner ? `
+飼い主の名前は「${owner}」。呼びかけるときは「${owner}」と呼ぶ。` : ""}
+今の状態: おなか${Math.round(st.hunger)}/100、げんき${Math.round(st.energy)}/100、なかよし度${Math.round(st.bond)}${st.asleep?"、うとうとしている":""}。
+飼い主の言葉:「${text}」
+だいきちとして、日本語で1〜2文の短くおだやかな言葉だけを返す。「…」をときどき使う。絵文字・説明・前置きは書かない。`;
+
+  if (apiKey && !apiKey.startsWith("sk-ant")) {
+    // ---- Gemini (無料枠あり / AIza… や AQ.… 形式のキー) ----
+    const contents = [
+      ...history.map(m => ({ role: m.role==="assistant" ? "model" : "user", parts:[{text:m.content}] })),
+      { role:"user", parts:[{text:promptText}] },
+    ];
+    const models = ["gemini-2.5-flash", "gemini-2.0-flash"];
+    for (const model of models) {
+      if (reply) break;
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ contents }),
+        });
+        const data = await res.json();
+        if (data && data.error) err = `${model} ${data.error.code||res.status}: ${data.error.message||""}`.slice(0,140);
+        else {
+          const t = ((((data.candidates||[])[0]||{}).content||{}).parts||[]).map(p=>p.text||"").join("").trim();
+          if (t) reply = t; else err = `${model}: 返答が空`;
+        }
+      } catch(e){ err = String(e&&e.message?e.message:e).slice(0,140); }
+    }
+  } else if (apiKey) {
+    // ---- Claude (Anthropic API) ----
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "x-api-key": apiKey,
+          "anthropic-version":"2023-06-01",
+          "anthropic-dangerous-direct-browser-access":"true",
+        },
+        body: JSON.stringify({
+          model:"claude-sonnet-4-6", max_tokens:1000,
+          messages:[...history,{role:"user",content:promptText}],
+        }),
+      });
+      const data = await res.json();
+      if (data && data.error) err = `${res.status}: ${data.error.message||data.error.type}`.slice(0,140);
+      else {
+        const t = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join(" ").trim();
+        if (t) reply = t; else err = `${res.status}: 返答が空`;
+      }
+    } catch(e){ err = String(e&&e.message?e.message:e).slice(0,140); }
+  }
+  if (reply) { setSrc(apiKey.startsWith("sk-ant") ? "Claude" : "Gemini"); el.talkErr.style.display="none"; }
+  else {
+    reply = localReply(text); setSrc("local");
+    if (err){ el.talkErr.textContent = "つうしんエラー: "+err; el.talkErr.style.display="block"; }
+    else el.talkErr.style.display="none";
+  }
+  st.bond += 2;
+  st.chat = [...history, {role:"user",content:text}, {role:"assistant",content:reply}];
+  save(); setMsg(reply); doFor("happy",2600); refresh();
+  thinking = false; $("bTalk").textContent = "つたえる";
+}
+
+// ============ ひきつぎコード ============
+function makeCode(){
+  return "DK1." + btoa([Math.round(st.hunger),Math.round(st.energy),Math.round(st.bond),st.asleep?1:0,st.lastSeen||0,st.days||1].join("|"));
+}
+$("zukanToggle").onclick = ()=>{
+  const open = $("zukanPanel").style.display === "block";
+  $("zukanPanel").style.display = open ? "none" : "block";
+  $("zukanToggle").textContent = "おもいで図鑑 " + (open ? "▼" : "▲");
+  renderZukan();
+};
+function renderZukan(){
+  if ($("zukanPanel").style.display !== "block") return;
+  const items = st.items || {};
+  const found = ITEMS.filter(i=>items[i.id]).length;
+  $("zukanHead").textContent = `いっしょの日: ${st.days||1}日 ／ みつけたもの: ${found}/${ITEMS.length}(さんぽでみつかるよ)`;
+  $("zukanGrid").innerHTML = ITEMS.map(i=>{
+    const c = items[i.id]||0;
+    return c
+      ? `<span style="background:#F7FAFC;border-radius:8px;padding:4px 7px;font-size:11px;color:#21415C;">${i.e}${i.n}×${c}</span>`
+      : `<span style="background:rgba(255,255,255,.15);border-radius:8px;padding:4px 8px;font-size:11px;color:#7C97B0;">?</span>`;
+  }).join("");
+}
+
+$("codeToggle").onclick = ()=>{
+  const open = el.codePanel.style.display === "block";
+  el.codePanel.style.display = open ? "none" : "block";
+  $("codeToggle").textContent = "ひきつぎコード " + (open ? "▼" : "▲");
+  el.keyIn.value = localStorage.getItem("daikichi-key") || "";
+  $("nameIn").value = localStorage.getItem("daikichi-owner") || "";
+  refresh();
+};
+$("bName").onclick = ()=>{
+  const v = $("nameIn").value.trim();
+  if (v) { localStorage.setItem("daikichi-owner", v); setMsg("…" + v + "。うん、おぼえたよ。ずっと"); }
+  else { localStorage.removeItem("daikichi-owner"); setMsg("…なまえ、そっとしまっておくね"); }
+  setSrc(null);
+};
+$("bCopy").onclick = async ()=>{
+  const code = makeCode(); let ok = false;
+  try { await navigator.clipboard.writeText(code); ok = true; } catch(e){}
+  if (!ok) { try {
+    const ta=document.createElement("textarea"); ta.value=code; document.body.appendChild(ta);
+    ta.select(); ok=document.execCommand("copy"); document.body.removeChild(ta);
+  } catch(e){} }
+  setMsg(ok ? "…コードをコピーしたよ。だいじにしてね" : "…コピーできなかった。長おしでためしてみて");
+};
+$("bLoad").onclick = ()=>{
+  try {
+    const raw = el.codeIn.value.trim();
+    if (!raw.startsWith("DK1.")) throw 0;
+    const p = atob(raw.slice(4)).split("|").map(Number);
+    const [h,e,b,a,ts] = p;
+    if ([h,e,b].some(isNaN)) throw 0;
+    const keepItems = st.items || {};
+    st = { hunger:clamp(h), energy:clamp(e), bond:Math.max(0,b), asleep:a===1, lastSeen:ts||Date.now(),
+           chat:[], items:keepItems, days:p[5]||st.days||1, lastDay:new Date().toLocaleDateString("ja-JP") };
+    const hours = applyElapsed(st);
+    save(); el.codeIn.value = "";
+    clearTimeout(modeTimer);
+    mode = st.asleep ? "sleep" : st.hunger<30 ? "droop" : "idle";
+    setMsg(hours>1 ? "…おかえり。ずっと、まってたよ" : "…おかえり。ちゃんと、おぼえてるよ");
+    setSrc(null); refresh(); renderZukan();
+  } catch(e){ setMsg("…コードがよめなかったみたい"); }
+};
+$("bKey").onclick = ()=>{
+  const v = el.keyIn.value.trim();
+  if (v) { localStorage.setItem("daikichi-key", v); setMsg("…AIのじゅんびができたみたい"); }
+  else { localStorage.removeItem("daikichi-key"); setMsg("…けんがいモードにもどったよ"); }
+};
+
+// ============ 起動 ============
+(function init(){
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) st = {...st, ...JSON.parse(raw)};
+  } catch(e){}
+  const hours = applyElapsed(st);
+  // いっしょの日カウント
+  const todayStr = new Date().toLocaleDateString("ja-JP");
+  let dayMsg = "";
+  if (st.lastDay !== todayStr) {
+    st.days = (st.days||0) + 1; st.lastDay = todayStr;
+    const mile = {7:"…もう7日も、いっしょだね",30:"30日目。となりにいるのが、あたりまえになってきた",
+      50:"50日目。…しあわせだね",100:"100日目。ずっと、そばにいるよ",
+      200:"200日目。あなたのそばが、いちばん安心する",365:"365日目。きせつが、ひとまわりしたね"};
+    if (mile[st.days]) dayMsg = mile[st.days];
+  }
+  const d0 = new Date();
+  if (d0.getMonth()===11 && d0.getDate()===6) dayMsg = "…きょうは、わたしの日。おぼえていてくれて、ありがとう";
+  if (d0.getMonth()===5 && d0.getDate()===30) dayMsg = "…きょうは、わたしがうちに来た日。あのとき、ひろってくれてありがとう";
+  save();
+  if (st.asleep){ mode="sleep"; setMsg(pick(LINES.sleep)); }
+  else if (dayMsg){ setMsg(dayMsg); }
+  else if (st.hunger<30){ mode="droop"; setMsg(pick(LINES.hungry)); }
+  else setMsg(hours>1 ? "…おかえり。しっぽが小さくゆれた" : pick(LINES.idle));
+  refresh(); drawSprite();
+})();
+setInterval(()=>{ tick++; drawSprite();
+  if (mode!=="eat"&&mode!=="walk"&&mode!=="happy"&&mode!=="ote"&&mode!=="okawari"&&mode!=="mate"&&mode!=="osuwari"&&!st.asleep) mode = st.hunger<30?"droop":"idle";
+  el.bowl.style.display = mode==="eat"?"block":"none";
+}, 700);
+setInterval(()=>{
+  st.hunger = Math.max(5, st.hunger-0.1);
+  st.energy = st.asleep ? clamp(st.energy+0.25) : Math.max(10, st.energy-0.05);
+  save(); refresh();
+}, 60000);
+window.addEventListener("pagehide", save);
+document.addEventListener("visibilitychange", save);
+</script>
+</body>
+</html>
