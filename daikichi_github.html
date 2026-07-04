@@ -29,6 +29,7 @@
   #hearts { color: #C75B5B; }
   .stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 6px 0; }
   #sprite { width: 74%; max-width: 260px; shape-rendering: crispEdges; transition: transform .65s ease-in-out; }
+  #still { width: 80%; max-width: 280px; display: none; cursor: pointer; filter: drop-shadow(0 3px 8px rgba(60,45,20,.35)); }
   #zzz { position: absolute; top: 52px; right: 46px; font-size: 16px; color: #6B7B8C; display: none; }
   #bowl { position: absolute; top: 44%; left: 9%; font-size: 36px; display: none; }
   .bubble {
@@ -80,7 +81,7 @@
   <div class="brand">▲ POCKET DAIKICHI '98 ▲</div>
   <div class="lcd">
     <div class="toprow"><span id="title">…</span><span id="hearts"></span></div>
-    <div class="stage"><svg id="sprite" viewBox="0 0 38 32"></svg></div>
+    <div class="stage"><svg id="sprite" viewBox="0 0 38 32"></svg><img id="still" alt=""></div>
     <div id="zzz">z Z</div>
     <div id="bowl">🍚</div>
     <div class="bubble"><span id="src"></span><span id="msg">…</span></div>
@@ -123,6 +124,11 @@
     <div class="keyrow">
       <input id="nameIn" placeholder="よびなまえ">
       <button id="bName">おぼえて</button>
+    </div>
+    <div class="label" style="margin-top:10px">かいぬしのたんじょうび(だいきちがおいわいするよ):</div>
+    <div class="keyrow">
+      <input id="bdayIn" placeholder="例: 7-15(7月15日)">
+      <button id="bBday">おぼえて</button>
     </div>
     <div class="label" style="margin-top:10px">AI会話キー(任意 / ClaudeまたはGemini):</div>
     <div class="keyrow">
@@ -318,7 +324,7 @@ function save(){
 // ============ 画面 ============
 const $ = id => document.getElementById(id);
 const el = {
-  sprite:$("sprite"), zzz:$("zzz"), bowl:$("bowl"), msg:$("msg"), src:$("src"),
+  sprite:$("sprite"), still:$("still"), zzz:$("zzz"), bowl:$("bowl"), msg:$("msg"), src:$("src"),
   title:$("title"), hearts:$("hearts"), barH:$("barH"), barE:$("barE"),
   saveState:$("saveState"), stamp:$("stamp"), bSleep:$("bSleep"),
   talkRow:$("talkRow"), talkIn:$("talkIn"), talkErr:$("talkErr"),
@@ -539,12 +545,23 @@ $("codeToggle").onclick = ()=>{
   $("codeToggle").textContent = "ひきつぎコード " + (open ? "▼" : "▲");
   el.keyIn.value = localStorage.getItem("daikichi-key") || "";
   $("nameIn").value = localStorage.getItem("daikichi-owner") || "";
+  $("bdayIn").value = localStorage.getItem("daikichi-bday") || "";
   refresh();
 };
 $("bName").onclick = ()=>{
   const v = $("nameIn").value.trim();
   if (v) { localStorage.setItem("daikichi-owner", v); setMsg("…" + v + "。うん、おぼえたよ。ずっと"); }
   else { localStorage.removeItem("daikichi-owner"); setMsg("…なまえ、そっとしまっておくね"); }
+  setSrc(null);
+};
+$("bBday").onclick = ()=>{
+  const v = $("bdayIn").value.trim().replace("/","-");
+  if (!v) { localStorage.removeItem("daikichi-bday"); setMsg("…たんじょうび、そっとしまっておくね"); setSrc(null); return; }
+  const p = v.split("-").map(Number);
+  if (p.length===2 && p[0]>=1 && p[0]<=12 && p[1]>=1 && p[1]<=31) {
+    localStorage.setItem("daikichi-bday", p[0]+"-"+p[1]);
+    setMsg(`…${p[0]}月${p[1]}日。うん、たのしみにしてる`);
+  } else setMsg("…「7-15」みたいに、月-日でおしえて");
   setSrc(null);
 };
 $("bCopy").onclick = async ()=>{
@@ -598,8 +615,30 @@ $("bKey").onclick = ()=>{
     if (mile[st.days]) dayMsg = mile[st.days];
   }
   const d0 = new Date();
-  if (d0.getMonth()===11 && d0.getDate()===6) dayMsg = "…きょうは、わたしの日。おぼえていてくれて、ありがとう";
-  if (d0.getMonth()===5 && d0.getDate()===30) dayMsg = "…きょうは、わたしがうちに来た日。あのとき、ひろってくれてありがとう";
+  const mo = d0.getMonth()+1, dd = d0.getDate();
+  if (mo===12 && dd===6) dayMsg = "…きょうは、わたしの日。おぼえていてくれて、ありがとう";
+  if (mo===6 && dd===30) dayMsg = "…きょうは、わたしがうちに来た日。あのとき、ひろってくれてありがとう";
+  if (mo===12 && (dd===24||dd===25)) dayMsg = "…メリークリスマス。しずかで、あたたかい日だね";
+  if (mo===1 && dd<=3) dayMsg = "…あけましておめでとう。ことしも、そばにいるよ";
+  // ユーザーのたんじょうび(設定されていれば最優先)
+  const bd = (localStorage.getItem("daikichi-bday")||"").replace("/","-").split("-").map(Number);
+  if (bd.length===2 && bd[0]===mo && bd[1]===dd) {
+    const nm = localStorage.getItem("daikichi-owner");
+    dayMsg = (nm ? "…" + nm + "。" : "…") + "おたんじょうび、おめでとう。きょうは、あなたの日だね";
+  }
+  // 記念日スチル(同名PNGがリポジトリにあれば表示。なければ通常のだいきち)
+  let stillFile = null;
+  if (mo===12 && (dd===24||dd===25)) stillFile = "christmas.png";
+  if (mo===1 && dd<=3) stillFile = "newyear.png";
+  if (mo===12 && dd===6) stillFile = "daikichi-day.png";
+  if (mo===6 && dd===30) stillFile = "homecoming.png";
+  if (bd.length===2 && bd[0]===mo && bd[1]===dd) stillFile = "birthday.png";
+  if (stillFile) {
+    el.still.onload = ()=>{ el.still.style.display="block"; el.sprite.style.display="none"; };
+    el.still.onerror = ()=>{ el.still.style.display="none"; el.sprite.style.display="block"; };
+    el.still.onclick = ()=>{ el.still.style.display="none"; el.sprite.style.display="block"; };
+    el.still.src = stillFile;
+  }
   save();
   if (st.asleep){ mode="sleep"; setMsg(pick(LINES.sleep)); }
   else if (dayMsg){ setMsg(dayMsg); }
